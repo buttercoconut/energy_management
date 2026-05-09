@@ -1,13 +1,13 @@
-from pydantic import BaseModel, Field
+from .database import Base
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
-class Sensor(BaseModel):
-    id: int = Field(..., description="Unique identifier for the sensor")
-    building_id: int = Field(..., description="Foreign key to Building")
-    type: str = Field(..., description="Sensor type (e.g., electricity, water, gas)")
-    location: str = Field(..., description="Physical location of the sensor")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        orm_mode = True
+class Sensor(Base):
+    __tablename__ = "sensors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    type = Column(String)
+    building_id = Column(Integer, ForeignKey("buildings.id"))
+    building = relationship("Building", back_populates="sensors")
+    consumptions = relationship("EnergyConsumption", back_populates="sensor")

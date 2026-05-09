@@ -1,13 +1,18 @@
 # Placeholder for report generation logic
-from typing import List
+# In a real system this would generate PDFs/Excel files
+# using libraries like ReportLab or openpyxl
 
 class ReportGenerator:
-    def __init__(self, data: List[dict]):
-        self.data = data
+    def __init__(self, db):
+        self.db = db
 
-    def generate(self) -> str:
-        # Simple CSV-like string
-        lines = [",".join(self.data[0].keys())]
-        for row in self.data:
-            lines.append(",".join(str(v) for v in row.values()))
-        return "\n".join(lines)
+    def generate_monthly_report(self, building_id: int, month: int, year: int):
+        # Dummy implementation
+        return {
+            "building_id": building_id,
+            "month": month,
+            "year": year,
+            "total_consumption": 1234.56,
+            "peak": 78.9,
+            "average": 12.34,
+        }

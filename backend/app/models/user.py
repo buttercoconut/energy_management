@@ -1,13 +1,10 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
+from .database import Base
+from sqlalchemy import Column, Integer, String
 
-class User(BaseModel):
-    id: int = Field(..., description="Unique identifier for the user")
-    username: str = Field(..., description="Login username")
-    email: str = Field(..., description="User email address")
-    role: str = Field(..., description="Role (e.g., admin, manager, engineer)")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        orm_mode = True
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String, default="viewer")

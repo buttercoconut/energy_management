@@ -1,8 +1,16 @@
 from fastapi import FastAPI
-from .routes import building, energy_consumption, user
+from .routes import token as token_router, energy_consumption as energy_router
+from .database import Base, engine
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Energy Management API")
 
-app.include_router(building.router, prefix="/buildings", tags=["buildings"])
-app.include_router(energy_consumption.router, prefix="/energy", tags=["energy"])
-app.include_router(user.router, prefix="/users", tags=["users"])
+app.include_router(token_router.router)
+app.include_router(energy_router.router)
+
+# Simple health check
+@app.get("/health")
+def health():
+    return {"status": "ok"}
