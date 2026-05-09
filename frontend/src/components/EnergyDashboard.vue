@@ -1,68 +1,40 @@
 <template>
-  <div class="dashboard">
-    <h2>Real‑Time Energy Consumption</h2>
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-else>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Consumption (kWh)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, idx) in data" :key="idx">
-            <td>{{ item.timestamp }}</td>
-            <td>{{ item.consumption.toFixed(2) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div>
+    <h2>Energy Consumption Dashboard</h2>
+    <canvas id="energyChart"></canvas>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { getEnergyData } from '../api/energy_api.js';
+import { ref, onMounted } from 'vue'
+import Chart from 'chart.js/auto'
 
-const data = ref([]);
-const loading = ref(true);
-let intervalId;
+const chartRef = ref(null)
 
-const fetchData = async () => {
-  try {
-    const res = await getEnergyData();
-    data.value = res.data;
-    loading.value = false;
-  } catch (e) {
-    console.error('Failed to fetch energy data', e);
-  }
-};
+onMounted(async () => {
+  const res = await fetch('http://localhost:8000/energy/')
+  const data = await res.json()
+  const labels = data.map(d => new Date(d.timestamp).toLocaleTimeString())
+  const values = data.map(d => d.consumption_kwh)
 
-onMounted(() => {
-  fetchData();
-  intervalId = setInterval(fetchData, 5000); // poll every 5 seconds
-});
-
-onUnmounted(() => {
-  clearInterval(intervalId);
-});
+  const ctx = document.getElementById('energyChart').getContext('2d')
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'kWh',
+        data: values,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    }
+  })
+})
 </script>
 
 <style scoped>
-.dashboard {
-  padding: 1rem;
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-}
-.loading {
-  font-style: italic;
+#energyChart {
+  max-width: 100%;
 }
 </style>

@@ -1,1 +1,1 @@
-# app package
+# Backend package init
